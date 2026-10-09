@@ -1,0 +1,11 @@
+transparent-background>=1.2.12
+Pillow>=10.0.0
+numpy>=1.24
+scipy>=1.10
+tkinterdnd2>=0.3.0
+# Optional: AI upscaling for the "Enhance" feature. If not installed,
+# Enhance falls back to a Lanczos + sharpen pass automatically.
+# realesrgan>=0.3.0
+#
+# Video features (MOV/MP4) additionally require ffmpeg on your PATH:
+#   winget install Gyan.FFmpeg

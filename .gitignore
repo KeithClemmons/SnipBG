@@ -1,0 +1,14 @@
+# Local Python environment (recreate with setup.bat)
+.venv/
+__pycache__/
+*.pyc
+
+# Model weights are downloaded by install_upscale.bat
+models/
+
+# PyInstaller output
+build/
+dist/
+*.spec
+
+*.lnk
