@@ -11,7 +11,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 PYTHON="${PYTHON:-.venv/bin/python}"
-VER=$("$PYTHON" -c 'import re;print(re.search(r"APP_VERSION = \"(.+?)\"", open("app.py").read()).group(1))')
+VER=$("$PYTHON" -c 'import re;print(re.search(r"APP_VERSION = \"(.+?)\"", open("app.py", encoding="utf-8").read()).group(1))')
 ARCH=$(uname -m)
 echo "Building SnipBG $VER ($(uname -s) $ARCH)"
 
