@@ -1,14 +1,21 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller build for SnipBG. Run via build_exe.bat (or: python -m PyInstaller SnipBG.spec).
+# PyInstaller build for SnipBG on Windows, macOS and Linux.
+# Run via build_exe.bat / build_release.sh (or: python -m PyInstaller SnipBG.spec).
+
+import re
+import sys
 
 from PyInstaller.utils.hooks import collect_data_files
+
+with open('app.py', encoding='utf-8') as f:
+    VERSION = re.search(r'APP_VERSION = "(.+?)"', f.read()).group(1)
 
 a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
     # config.yaml from the model package is copied to the user's profile on first run.
-    datas=[('snipbg.ico', '.')] + collect_data_files('transparent_background'),
+    datas=[('snipbg.ico', '.'), ('snipbg.png', '.')] + collect_data_files('transparent_background'),
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -41,7 +48,8 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['snipbg.ico'],
+    # PyInstaller converts the PNG to .icns on macOS (needs Pillow).
+    icon=['snipbg.ico'] if sys.platform == 'win32' else ['snipbg.png'],
 )
 coll = COLLECT(
     exe,
@@ -52,3 +60,17 @@ coll = COLLECT(
     upx_exclude=[],
     name='SnipBG',
 )
+
+if sys.platform == 'darwin':
+    app = BUNDLE(
+        coll,
+        name='SnipBG.app',
+        icon='snipbg.png',
+        bundle_identifier='com.keithclemmons.snipbg',
+        version=VERSION,
+        info_plist={
+            'CFBundleShortVersionString': VERSION,
+            'NSHighResolutionCapable': True,
+            'NSRequiresAquaSystemAppearance': False,
+        },
+    )

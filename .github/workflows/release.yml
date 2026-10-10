@@ -1,0 +1,132 @@
+# Builds SnipBG for Windows, macOS (Apple Silicon) and Linux, self-tests each build,
+# and publishes them as a GitHub release.
+#
+# To release: bump APP_VERSION in app.py, commit, then push a matching tag:
+#   git tag v1.1.0 && git push origin v1.1.0
+# "Run workflow" on the Actions tab builds and tests without publishing.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu-22.04 (glibc 2.35) so the Linux build runs on older distros too.
+        # macos-14 runners are Apple Silicon; PyTorch no longer ships Intel Mac builds.
+        os: [windows-latest, macos-14, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check tag matches APP_VERSION
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          VER=$(python -c 'import re;print(re.search(r"APP_VERSION = \"(.+?)\"", open("app.py").read()).group(1))')
+          if [ "v$VER" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match APP_VERSION $VER in app.py"
+            exit 1
+          fi
+
+      - name: Install Linux system libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgl1 libglib2.0-0 libtk8.6
+
+      # The self-test needs the AI model; cache it so it's downloaded once, not every build.
+      - name: Cache AI model
+        uses: actions/cache@v4
+        with:
+          path: ~/.transparent-background/ckpt_base.pth
+          key: inspyrenet-base-1.2.12
+
+      - name: Download AI model
+        run: |
+          mkdir -p ~/.transparent-background
+          f=~/.transparent-background/ckpt_base.pth
+          [ -f "$f" ] || curl -L --fail -o "$f" \
+            https://github.com/plemeri/transparent-background/releases/download/1.2.12/ckpt_base.pth
+
+      - name: Install Python dependencies
+        run: |
+          python -m venv .venv
+          if [ "$RUNNER_OS" = "Windows" ]; then PY=.venv/Scripts/python; else PY=.venv/bin/python; fi
+          $PY -m pip install --upgrade pip
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            $PY -m pip install torch torchvision -c constraints.txt
+          else
+            # CPU-only PyTorch: the default Linux wheels bundle ~2 GB of CUDA libraries.
+            $PY -m pip install torch torchvision -c constraints.txt \
+              --index-url https://download.pytorch.org/whl/cpu
+          fi
+          $PY -m pip install -r requirements.txt pyinstaller -c constraints.txt
+
+      - name: Build and self-test (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          choco install innosetup -y --no-progress
+          call build_installer.bat nopause
+
+      - name: Build and self-test (macOS / Linux)
+        if: runner.os != 'Windows'
+        run: ./build_release.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snipbg-${{ runner.os }}
+          path: |
+            installer/*.exe
+            installer/*.zip
+            installer/*.dmg
+            installer/*.tar.gz
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: files
+          merge-multiple: true
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          cat > notes.md <<EOF
+          Download the file for your computer:
+
+          | System | File |
+          |---|---|
+          | **Windows** | \`SnipBG-Setup-$VER.exe\` (installer, recommended) or \`SnipBG-$VER-windows-portable.zip\` |
+          | **Mac** (Apple Silicon: M1 or newer) | \`SnipBG-$VER-macos-arm64.dmg\` |
+          | **Linux** (x86-64) | \`SnipBG-$VER-linux-x86_64.tar.gz\` |
+
+          **First launch.** The app isn't code-signed, so your system will warn you the first time:
+          - **Windows:** on "Windows protected your PC", click **More info → Run anyway**.
+          - **Mac:** drag SnipBG to Applications and open it. When macOS blocks it, go to **System Settings → Privacy & Security** and click **Open Anyway**.
+          - **Linux:** extract the archive and run \`SnipBG/SnipBG\`. Run \`SnipBG/install.sh\` to add it to your app menu.
+
+          The AI model (~350 MB) downloads automatically the first time you remove a background.
+          EOF
+          gh release create "$GITHUB_REF_NAME" files/* --repo "$GITHUB_REPOSITORY" \
+            --title "SnipBG $VER" --notes-file notes.md

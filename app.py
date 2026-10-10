@@ -7,6 +7,7 @@ lives under "More options". Runs locally using the InSPyReNet model.
 
 import os
 import queue
+import subprocess
 import sys
 import threading
 from collections import OrderedDict
@@ -29,7 +30,7 @@ except Exception:
     _DND = False
 
 APP_NAME = "SnipBG"
-APP_VERSION = "1.0.1"
+APP_VERSION = "1.1.0"
 # Bundled files live in sys._MEIPASS when running as the packaged .exe
 HERE = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,14 +48,61 @@ DIM        = "#5d5d75"
 OK         = "#3ccf8e"
 ERR        = "#f2637a"
 
-F = "Segoe UI"
-FONT     = (F, 10)
-FONT_S   = (F, 9)
-FONT_B   = (F + " Semibold", 10)
-FONT_SEC = (F + " Semibold", 8)
-FONT_BIG = (F + " Semibold", 13)
-FONT_H   = (F + " Semibold", 16)
-FONT_BTN = (F + " Semibold", 11)
+WIN = sys.platform == "win32"
+MAC = sys.platform == "darwin"
+
+# Tk sizes fonts in points; macOS renders them noticeably smaller, so bump them there.
+F = "Segoe UI" if WIN else "Helvetica Neue" if MAC else "DejaVu Sans"
+_FS = 2 if MAC else 0
+
+
+def _font(size, bold=False):
+    if bold:
+        return ("Segoe UI Semibold", size) if WIN else (F, size + _FS, "bold")
+    return (F, size + _FS)
+
+
+FONT     = _font(10)
+FONT_S   = _font(9)
+FONT_B   = _font(10, True)
+FONT_SEC = _font(8, True)
+FONT_BIG = _font(13, True)
+FONT_H   = _font(16, True)
+FONT_BTN = _font(11, True)
+
+
+def wheel_steps(e):
+    """Normalize a mouse-wheel event to +/- scroll steps on every platform."""
+    if getattr(e, "num", None) in (4, 5):          # Linux/X11 wheel buttons
+        return -1 if e.num == 4 else 1
+    if WIN:
+        return int(-e.delta / 120)
+    return -1 if e.delta > 0 else 1 if e.delta < 0 else 0   # macOS: small raw deltas
+
+
+def bind_wheel(widget, handler, all_widgets=False):
+    method = widget.bind_all if all_widgets else widget.bind
+    for seq in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+        method(seq, handler)
+
+
+def open_path(path):
+    """Open a folder or file with the system's default app."""
+    if WIN:
+        os.startfile(path)
+    else:
+        subprocess.Popen(["open" if MAC else "xdg-open", path])
+
+
+def reveal_file(path):
+    """Show a file selected in Explorer/Finder (Linux just opens its folder)."""
+    path = os.path.normpath(path)
+    if WIN:
+        subprocess.Popen(["explorer", "/select,", path])
+    elif MAC:
+        subprocess.Popen(["open", "-R", path])
+    else:
+        subprocess.Popen(["xdg-open", os.path.dirname(path)])
 
 PREVIEW_MAX = 1400   # live preview works on a downscaled copy for speed
 MATTE_CACHE = 30     # how many full-res mattes to keep for instant re-runs
@@ -170,12 +218,13 @@ class ScrollFrame(tk.Frame):
         self.canvas.bind("<Configure>",
                          lambda e: self.canvas.itemconfig(self._win, width=e.width))
         self.canvas.pack(fill="both", expand=True)
-        self.bind("<Enter>", lambda e: self.bind_all("<MouseWheel>", self._wheel))
-        self.bind("<Leave>", lambda e: self.unbind_all("<MouseWheel>"))
+        self.bind("<Enter>", lambda e: bind_wheel(self, self._wheel, all_widgets=True))
+        self.bind("<Leave>", lambda e: [self.unbind_all(s) for s in
+                                        ("<MouseWheel>", "<Button-4>", "<Button-5>")])
 
     def _wheel(self, e):
         if self.inner.winfo_height() > self.canvas.winfo_height():
-            self.canvas.yview_scroll(int(-e.delta / 120), "units")
+            self.canvas.yview_scroll(wheel_steps(e), "units")
 
 
 class Item:
@@ -203,9 +252,11 @@ class App:
         root.minsize(px(900), px(600))
         root.configure(bg=BG)
         try:
-            ico = os.path.join(HERE, "snipbg.ico")
-            if os.path.exists(ico):
-                root.iconbitmap(default=ico)
+            if WIN:
+                root.iconbitmap(default=os.path.join(HERE, "snipbg.ico"))
+            elif not MAC:   # macOS takes the icon from the .app bundle
+                self._icon = tk.PhotoImage(file=os.path.join(HERE, "snipbg.png"))
+                root.iconphoto(True, self._icon)
         except Exception:
             pass
 
@@ -236,7 +287,7 @@ class App:
         root.bind("<Left>", lambda e: self._step(-1))
         root.bind("<Right>", lambda e: self._step(1))
         root.bind("<Delete>", lambda e: self.remove_selected())
-        root.bind("<Control-o>", lambda e: self.add_files())
+        root.bind("<Command-o>" if MAC else "<Control-o>", lambda e: self.add_files())
         root.after(100, self._drain)
 
     # ------------------------------------------------------------------ vars
@@ -363,9 +414,10 @@ class App:
         self.strip = tk.Canvas(main, bg=BG, height=self.TH + px(6), highlightthickness=0, bd=0)
         self.strip.pack(fill="x")
         self.strip.bind("<Button-1>", self._strip_click)
-        self.strip.bind("<Button-3>", self._strip_right_click)
-        self.strip.bind("<MouseWheel>",
-                        lambda e: self.strip.xview_scroll(int(-e.delta / 120) * 3, "units"))
+        # Right-click is Button-2 on macOS (plus Control-click).
+        for seq in (("<Button-2>", "<Control-Button-1>") if MAC else ("<Button-3>",)):
+            self.strip.bind(seq, self._strip_right_click)
+        bind_wheel(self.strip, lambda e: self.strip.xview_scroll(wheel_steps(e) * 3, "units"))
 
         if _DND:
             for w in (self.root, self.canvas, self.strip):
@@ -443,7 +495,8 @@ class App:
     def _build_more(self, f):
         self._section(f, "Quality")
         self._seg_row(f, "AI model", "quality", [("base", "Best"), ("fast", "Fast")])
-        self._switch_row(f, "Use GPU (NVIDIA)", "gpu")
+        if not MAC:   # CUDA only; Macs have no NVIDIA GPUs
+            self._switch_row(f, "Use GPU (NVIDIA)", "gpu")
 
         self._section(f, "Effects")
         self._slider(f, "Drop shadow", "shadow", 0, 100, lambda n: "Off" if n == 0 else f"{n}%")
@@ -802,7 +855,7 @@ class App:
             it = self.items[idx]
             if it.out and os.path.exists(it.out):
                 m.add_command(label="Show saved file",
-                              command=lambda: os.system(f'explorer /select,"{os.path.normpath(it.out)}"'))
+                              command=lambda: reveal_file(it.out))
             m.tk_popup(e.x_root, e.y_root)
 
     # --------------------------------------------------------------- preview
@@ -823,7 +876,7 @@ class App:
             self.name_lbl.config(text="")
             m = px(28)
             c.create_rectangle(m, m, W - m, H - m, outline=BORDER, dash=(6, 4), width=2)
-            c.create_text(W / 2, H / 2 - px(30), text="⬇", fill=ACCENT, font=(F, 28))
+            c.create_text(W / 2, H / 2 - px(30), text="⬇", fill=ACCENT, font=_font(28))
             c.create_text(W / 2, H / 2 + px(14), text="Drop photos or folders here",
                           fill=TEXT, font=FONT_BIG)
             c.create_text(W / 2, H / 2 + px(42), text="or click to browse  ·  JPG, PNG, WebP, GIF, MP4, MOV",
@@ -917,7 +970,7 @@ class App:
     # ---------------------------------------------------------------- output
     def _short_path(self, p):
         parts = os.path.normpath(p).split(os.sep)
-        return p if len(parts) <= 3 else "…\\" + "\\".join(parts[-2:])
+        return p if len(parts) <= 3 else "…" + os.sep + os.sep.join(parts[-2:])
 
     def choose_out(self):
         d = filedialog.askdirectory(title="Save results to", initialdir=self.outdir)
@@ -928,7 +981,7 @@ class App:
 
     def open_output(self):
         os.makedirs(self.outdir, exist_ok=True)
-        os.startfile(self.outdir)
+        open_path(self.outdir)
 
     # ------------------------------------------------------------------- run
     def start(self):
@@ -1089,7 +1142,7 @@ def _selftest(spec):
 
 
 def main():
-    global SCALE
+    global SCALE, _DND
     # The windowed .exe has no console; give libraries that print somewhere harmless to write.
     for name in ("stdout", "stderr"):
         if getattr(sys, name) is None:
@@ -1102,7 +1155,14 @@ def main():
         ctypes.windll.shcore.SetProcessDpiAwareness(1)   # crisp text on high-DPI screens
     except Exception:
         pass
-    root = TkinterDnD.Tk() if _DND else tk.Tk()
+    root = None
+    if _DND:
+        try:
+            root = TkinterDnD.Tk()
+        except Exception:   # tkdnd library missing for this platform: run without drag & drop
+            _DND = False
+    if root is None:
+        root = tk.Tk()
     SCALE = max(1.0, root.winfo_fpixels("1i") / 96.0)
     App(root)
     root.mainloop()
