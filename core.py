@@ -92,15 +92,17 @@ def get_remover(quality: str = "base", gpu: bool = False):
     key = (quality, gpu)
     if key not in _remover_cache:
         from transparent_background import Remover
-        device = None
+        # Always pick the device explicitly: left to itself, Remover grabs Apple's MPS
+        # backend on Macs, which is untested with this model and absent on CI runners.
+        device = "cpu"
         if gpu:
             try:
                 import torch
                 if torch.cuda.is_available():
                     device = "cuda:0"
             except Exception:
-                device = None
-        _remover_cache[key] = Remover(mode=quality, device=device) if device else Remover(mode=quality)
+                pass
+        _remover_cache[key] = Remover(mode=quality, device=device)
     return _remover_cache[key]
 
 
