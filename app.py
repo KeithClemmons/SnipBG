@@ -7,6 +7,7 @@ lives under "More options". Runs locally using the InSPyReNet model.
 
 import os
 import queue
+import sys
 import threading
 from collections import OrderedDict
 
@@ -28,7 +29,9 @@ except Exception:
     _DND = False
 
 APP_NAME = "SnipBG"
-HERE = os.path.dirname(os.path.abspath(__file__))
+APP_VERSION = "1.0.0"
+# Bundled files live in sys._MEIPASS when running as the packaged .exe
+HERE = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
 
 # ----- palette -----
 BG         = "#14141c"   # main area
@@ -1068,8 +1071,31 @@ class App:
         self.root.destroy()
 
 
+def _selftest(spec):
+    """Headless check used by build_installer.bat: SNIPBG_SELFTEST="input.jpg|out_dir"."""
+    src, out = spec.split("|", 1)
+    try:
+        s = core.Settings()
+        rgba, matte = core.process_image(Image.open(src), s)
+        os.makedirs(out, exist_ok=True)
+        core.save_output(rgba, os.path.join(out, "selftest.png"), s, matte)
+        return 0
+    except Exception:
+        import traceback
+        os.makedirs(out, exist_ok=True)
+        with open(os.path.join(out, "selftest_error.txt"), "w", encoding="utf-8") as f:
+            traceback.print_exc(file=f)
+        return 1
+
+
 def main():
     global SCALE
+    # The windowed .exe has no console; give libraries that print somewhere harmless to write.
+    for name in ("stdout", "stderr"):
+        if getattr(sys, name) is None:
+            setattr(sys, name, open(os.devnull, "w"))
+    if os.environ.get("SNIPBG_SELFTEST"):
+        sys.exit(_selftest(os.environ["SNIPBG_SELFTEST"]))
     try:
         import ctypes
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("SnipBG.BackgroundRemover")

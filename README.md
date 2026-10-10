@@ -5,6 +5,16 @@ computer**. Nothing is uploaded. It uses the **InSPyReNet** model (via
 [`transparent-background`](https://github.com/plemeri/transparent-background)), which
 handles hair and fine edges well.
 
+## Download
+
+Grab the latest version from the [Releases page](https://github.com/KeithClemmons/SnipBG/releases):
+
+- **`SnipBG-Setup-x.y.z.exe`**: installer (recommended). No admin rights needed. Adds a Start menu entry and an uninstaller.
+- **`SnipBG-x.y.z-portable.zip`**: unzip anywhere and run `SnipBG.exe`.
+
+Windows may show a SmartScreen warning because the app isn't code-signed. Click **More info → Run anyway**.
+The AI model (~150 MB) downloads automatically the first time you remove a background.
+
 ## How to use it
 
 1. **Drop** photos or folders onto the window (or click the drop area to browse).
@@ -29,7 +39,9 @@ These are hidden under **More options** until you need them:
 
 Your settings and output folder are remembered between runs.
 
-## Setup (one time)
+## Running from source
+
+### Setup (one time)
 
 1. Install **Python 3.10 or 3.11** from https://www.python.org/downloads/ and tick **"Add Python to PATH"**.
 2. Double-click **`setup.bat`**. It creates a local `.venv` and installs PyTorch (CPU) and the other dependencies.
@@ -40,7 +52,7 @@ Optional extras:
 - **AI upscaling:** run `install_upscale.bat` (Real-ESRGAN). Without it, upscaling falls back to Lanczos + sharpening.
 - **Video:** install ffmpeg with `winget install Gyan.FFmpeg`. GIFs work without it.
 
-## Running it
+### Running it
 
 - Double-click **`SnipBG.vbs`** (no console window), or **`run.bat`**.
 - **`make_shortcut.bat`** puts a shortcut with the icon on your Desktop. Right-click it and choose **Pin to taskbar**.
@@ -61,6 +73,17 @@ snipbg-cli logo.png -o output --sticker --sticker-color black
 ```
 
 Run `snipbg-cli --help` for every option.
+
+## Making a release
+
+1. Bump `APP_VERSION` in `app.py`, then commit.
+2. Run **`build_installer.bat`**. It builds the .exe, self-tests it on a clean profile, and writes
+   the installer and portable zip to `installer\`. It needs Inno Setup: `winget install JRSoftware.InnoSetup`.
+3. Publish them as a GitHub release:
+
+```
+gh release create v1.0.0 installer\SnipBG-Setup-1.0.0.exe installer\SnipBG-1.0.0-portable.zip --title "SnipBG 1.0.0" --generate-notes
+```
 
 ## Project layout
 

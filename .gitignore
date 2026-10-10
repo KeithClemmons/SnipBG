@@ -9,6 +9,11 @@ models/
 # PyInstaller output
 build/
 dist/
-*.spec
 
 *.lnk
+
+# Release output from build_installer.bat
+installer/
+
+# Numba JIT cache written when the packaged app runs from this folder
+numba/
