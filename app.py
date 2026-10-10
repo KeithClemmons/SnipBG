@@ -977,7 +977,7 @@ class App:
                     if matte is None:
                         if (s.quality, s.gpu) not in core._remover_cache:
                             self.q.put(("status", ("Loading the AI model (the first run downloads "
-                                                   "it, ~150 MB)…", (i - 1) / total)))
+                                                   "it, ~350 MB)…", (i - 1) / total)))
                         matte = core.get_matte(src, s)
                         self._matte_put(key, matte)
                     rgba, _ = core.process_image(src, s, matte)

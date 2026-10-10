@@ -13,7 +13,7 @@ Grab the latest version from the [Releases page](https://github.com/KeithClemmon
 - **`SnipBG-x.y.z-portable.zip`**: unzip anywhere and run `SnipBG.exe`.
 
 Windows may show a SmartScreen warning because the app isn't code-signed. Click **More info → Run anyway**.
-The AI model (~150 MB) downloads automatically the first time you remove a background.
+The AI model (~350 MB) downloads automatically the first time you remove a background.
 
 ## How to use it
 
@@ -46,7 +46,7 @@ Your settings and output folder are remembered between runs.
 1. Install **Python 3.10 or 3.11** from https://www.python.org/downloads/ and tick **"Add Python to PATH"**.
 2. Double-click **`setup.bat`**. It creates a local `.venv` and installs PyTorch (CPU) and the other dependencies.
 
-The AI model (~150 MB) downloads automatically the first time you remove a background.
+The AI model (~350 MB) downloads automatically the first time you remove a background.
 
 Optional extras:
 - **AI upscaling:** run `install_upscale.bat` (Real-ESRGAN). Without it, upscaling falls back to Lanczos + sharpening.
