@@ -13,7 +13,10 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    # Never used by SnipBG: pymatting (and its numba/llvmlite JIT) is an optional
+    # post-processing step in transparent_background that we don't call; matplotlib
+    # is only pulled in by optional imports. Saves ~120 MB.
+    excludes=['pymatting', 'numba', 'llvmlite', 'matplotlib'],
     noarchive=False,
     optimize=0,
     # kornia compiles functions with torch.jit.script at import time, which needs the
