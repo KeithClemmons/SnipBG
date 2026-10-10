@@ -5,7 +5,7 @@
 import re
 import sys
 
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 
 with open('app.py', encoding='utf-8') as f:
     VERSION = re.search(r'APP_VERSION = "(.+?)"', f.read()).group(1)
@@ -15,7 +15,10 @@ a = Analysis(
     pathex=[],
     binaries=[],
     # config.yaml from the model package is copied to the user's profile on first run.
-    datas=[('snipbg.ico', '.'), ('snipbg.png', '.')] + collect_data_files('transparent_background'),
+    # gdown (used by the model package) reads its own version from package metadata.
+    datas=[('snipbg.ico', '.'), ('snipbg.png', '.')]
+          + collect_data_files('transparent_background')
+          + copy_metadata('gdown'),
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
