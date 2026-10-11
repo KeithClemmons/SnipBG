@@ -1,121 +1,127 @@
+<div align="center">
+
+<img src="snipbg.png" width="96" alt="SnipBG icon">
+
 # SnipBG
 
-A simple desktop app for Windows that removes photo backgrounds **entirely on your own
-computer**. Nothing is uploaded. It uses the **InSPyReNet** model (via
-[`transparent-background`](https://github.com/plemeri/transparent-background)), which
-handles hair and fine edges well.
+**Remove photo backgrounds in one click. Nothing ever leaves your computer.**
 
-## Download
+[![Latest release](https://img.shields.io/github/v/release/KeithClemmons/SnipBG?style=flat-square&color=7c5cf6&label=release)](https://github.com/KeithClemmons/SnipBG/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/KeithClemmons/SnipBG/total?style=flat-square&color=7c5cf6)](https://github.com/KeithClemmons/SnipBG/releases)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-2e2e42?style=flat-square)
+![Offline](https://img.shields.io/badge/100%25-offline-3ccf8e?style=flat-square)
 
-Get the latest version from the [Releases page](https://github.com/KeithClemmons/SnipBG/releases):
+[**⬇ Download SnipBG**](https://github.com/KeithClemmons/SnipBG/releases/latest)
 
-| System | File |
+<br>
+
+<img src="docs/screenshot.png" alt="SnipBG with a photo whose background has been removed" width="820">
+
+</div>
+
+<br>
+
+## Why SnipBG?
+
+Most background removers make you upload your photos to someone else's server, then charge per image. SnipBG runs a state-of-the-art AI model **right on your machine**: free, private and unlimited.
+
+- 🔒 **Private.** Your photos never leave your computer. No account, no uploads, works offline.
+- ✨ **Clean edges.** Powered by [InSPyReNet](https://github.com/plemeri/InSPyReNet), which handles hair, fur and fine detail well.
+- 📂 **Batch friendly.** Drop in one photo or a whole folder, and subfolders are kept.
+- 🎨 **Instant restyling.** Swap the background, add a shadow or a sticker outline, and the preview updates instantly with no re-processing.
+- 🎞️ **GIFs and video too.** Cut out animated GIFs, MP4 and MOV files frame by frame.
+
+## Get it
+
+Grab the file for your computer from the **[latest release](https://github.com/KeithClemmons/SnipBG/releases/latest)**:
+
+| | Download |
 |---|---|
-| **Windows** | `SnipBG-Setup-x.y.z.exe` (installer, no admin rights needed) or `SnipBG-x.y.z-windows-portable.zip` |
-| **Mac** (Apple Silicon: M1 or newer) | `SnipBG-x.y.z-macos-arm64.dmg`: open it and drag SnipBG to Applications |
-| **Linux** (x86-64) | `SnipBG-x.y.z-linux-x86_64.tar.gz`: extract it and run `SnipBG/SnipBG`. `install.sh` adds it to your app menu. |
+| **Windows** 10/11 | `SnipBG-Setup-x.y.z.exe` (installer) or the `windows-portable.zip` |
+| **Mac** (M1 or newer) | `SnipBG-x.y.z-macos-arm64.dmg`. Open it and drag SnipBG to Applications. |
+| **Linux** (x86-64) | `SnipBG-x.y.z-linux-x86_64.tar.gz`. Extract it, then run `SnipBG/SnipBG`. |
 
-The app isn't code-signed, so the first launch shows a warning:
-- **Windows:** "Windows protected your PC". Click **More info → Run anyway**.
-- **Mac:** macOS blocks the app. Go to **System Settings → Privacy & Security** and click **Open Anyway**.
+> [!NOTE]
+> SnipBG isn't code-signed yet, so the first launch shows a warning.
+> On **Windows**, click **More info → Run anyway**. On **Mac**, open **System Settings → Privacy & Security** and click **Open Anyway**.
+> The first background removal also downloads the AI model (~350 MB), once.
 
-The AI model (~350 MB) downloads automatically the first time you remove a background.
+## How it works
 
-## How to use it
+1. **Drop** photos or folders onto the window.
+2. **Pick a background**: transparent, white, black, any color, a blur of the original, or another photo.
+3. Hit **Remove background**. Done. Click **Open** to see your files.
 
-1. **Drop** photos or folders onto the window (or click the drop area to browse).
-2. **Pick a background**: None (transparent), White, Black, a color, a blur of the original, or another photo.
-3. Click **Remove background**. Results are saved to the folder shown under **Save to**. Click **Open** to see them.
+Use **Before / After** to compare, and the ← → keys to flip through photos. Right-click a thumbnail to remove it or find the saved file.
 
-After a photo has been processed, changing the background or effects updates the
-preview instantly. Use **Before / After** to compare, and the arrow keys to move
-between photos. Right-click a thumbnail to remove it or show its saved file.
+<details>
+<summary><b>More options</b></summary>
+<br>
 
-### More options
+Tucked away under **More options** in the sidebar:
 
-These are hidden under **More options** until you need them:
-
-| Group | Options |
+| | |
 |---|---|
-| Quality | Best / Fast model, GPU (NVIDIA) |
-| Effects | Drop shadow, shadow style, clean edges (despill), center subject, sticker outline |
-| Size | AI upscale 2×/3×/4×, resize to an exact size |
-| Output file | PNG / WebP, file size, file naming, save alpha mask, watermark |
-| Video & GIF | Frames to process, MOV (transparent ProRes) or MP4 (green screen) |
+| **Effects** | Drop shadow (below, angled or glow), clean edges, center subject, sticker outline |
+| **Size** | AI upscale 2× / 3× / 4×, resize to an exact size like `1080x1080` |
+| **Output** | PNG or WebP, file size, file naming, save the alpha mask, add a watermark |
+| **Quality** | Best or Fast model, NVIDIA GPU acceleration |
+| **Video & GIF** | Process every frame or skip some for speed; transparent MOV or green-screen MP4 |
 
-Your settings and output folder are remembered between runs.
+Your settings and output folder are remembered for next time.
 
-## Running from source
+</details>
 
-### Setup on Windows (one time)
+<details>
+<summary><b>FAQ</b></summary>
+<br>
 
-1. Install **Python 3.10 or 3.11** from https://www.python.org/downloads/ and tick **"Add Python to PATH"**.
-2. Double-click **`setup.bat`**. It creates a local `.venv` and installs PyTorch (CPU) and the other dependencies.
+**Is anything uploaded?**
+No. Everything runs locally. The only internet connection SnipBG ever makes is a one-time download of the AI model.
 
-The AI model (~350 MB) downloads automatically the first time you remove a background.
+**Why is the first photo slow?**
+The AI model downloads and loads on first use. After that, each photo takes several seconds on a typical CPU, or faster with an NVIDIA GPU when running from source.
 
-Optional extras:
-- **AI upscaling:** run `install_upscale.bat` (Real-ESRGAN). Without it, upscaling falls back to Lanczos + sharpening.
-- **Video:** install ffmpeg with `winget install Gyan.FFmpeg`. GIFs work without it.
+**Does it work on video?**
+Yes, if [ffmpeg](https://ffmpeg.org/download.html) is installed (Windows: `winget install Gyan.FFmpeg`). GIFs work without it.
 
-### Setup on macOS / Linux
+**Intel Mac?**
+Not supported. PyTorch, the AI engine SnipBG uses, no longer supports Intel Macs.
 
-```
+</details>
+
+<details>
+<summary><b>Run from source</b></summary>
+<br>
+
+Requires Python 3.10 or 3.11.
+
+**Windows:** double-click `setup.bat`, then `run.bat`.
+
+**macOS / Linux:**
+
+```bash
 python3 -m venv .venv
-.venv/bin/pip install torch torchvision    # Linux: add --index-url https://download.pytorch.org/whl/cpu
+.venv/bin/pip install torch torchvision   # Linux: add --index-url https://download.pytorch.org/whl/cpu
 .venv/bin/pip install -r requirements.txt
 .venv/bin/python app.py
 ```
 
-### Running it (Windows)
+There's also a command-line version:
 
-- Double-click **`SnipBG.vbs`** (no console window), or **`run.bat`**.
-- **`make_shortcut.bat`** puts a shortcut with the icon on your Desktop. Right-click it and choose **Pin to taskbar**.
-- **`build_exe.bat`** builds a standalone `dist\SnipBG\SnipBG.exe` with PyInstaller.
-
-### Right-click menu
-
-`install_context_menu.bat` adds **Remove background (SnipBG)** to Explorer's right-click
-menu for images. `uninstall_context_menu.bat` removes it.
-
-### Command line
-
-```
-snipbg-cli photo.jpg -o output
-snipbg-cli ./photos -o output --background white --compression lossless
-snipbg-cli portrait.jpg -o output --background blur --blur-strength 70
-snipbg-cli logo.png -o output --sticker --sticker-color black
+```bash
+python cli.py ./photos -o ./output --background white
 ```
 
-Run `snipbg-cli --help` for every option.
+Run `python cli.py --help` for every option.
 
-## Making a release
+</details>
 
-Releases are built by GitHub Actions ([`.github/workflows/release.yml`](.github/workflows/release.yml))
-on Windows, macOS and Linux. Each build is self-tested on a clean profile before anything is published.
+## Credits
 
-1. Bump `APP_VERSION` in `app.py` and commit.
-2. Tag and push:
+Background removal by [InSPyReNet](https://github.com/plemeri/InSPyReNet) via [transparent-background](https://github.com/plemeri/transparent-background). Optional upscaling by [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN).
 
-```
-git tag v1.1.0
-git push origin main v1.1.0
-```
-
-The release appears on the Releases page about 20–30 minutes later. To build and test without
-publishing, use **Run workflow** on the repo's Actions tab.
-
-Building locally: `build_installer.bat` on Windows (needs Inno Setup: `winget install JRSoftware.InnoSetup`)
-or `./build_release.sh` on macOS/Linux. Both write to `installer/`. Library versions for releases are
-pinned in `constraints.txt`.
-
-## Project layout
-
-| File | Purpose |
-|---|---|
-| `app.py` | Desktop app (Tkinter) |
-| `core.py` | Image pipeline: cutout, despill, upscale, sticker, shadow, background, resize, watermark, saving |
-| `video.py` | GIF and video processing |
-| `batch.py` | Batch runner shared by the CLI |
-| `cli.py` | Command-line interface |
-| `config.py` | Remembers settings in `~/.snipbg/config.json` |
+<div align="center">
+<br>
+<sub>Made by <a href="https://github.com/KeithClemmons">Keith Clemmons</a></sub>
+</div>
