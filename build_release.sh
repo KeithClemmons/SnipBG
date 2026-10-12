@@ -31,7 +31,7 @@ mkdir -p "$TESTHOME/.transparent-background"
 if [[ -f "$HOME/.transparent-background/ckpt_base.pth" ]]; then
   cp "$HOME/.transparent-background/ckpt_base.pth" "$TESTHOME/.transparent-background/"
 fi
-if ! HOME="$TESTHOME" SNIPBG_SELFTEST="$PWD/snipbg.png|$TESTHOME/out" "$EXE"; then
+if ! HOME="$TESTHOME" SNIPBG_SELFTEST="$PWD/tests/selftest.heic|$TESTHOME/out" "$EXE"; then
   echo "SELF-TEST FAILED:"
   cat "$TESTHOME/out/selftest_error.txt" 2>/dev/null || true
   exit 1

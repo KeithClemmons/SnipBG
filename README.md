@@ -82,6 +82,9 @@ No. Everything runs locally. The only internet connection SnipBG ever makes is a
 **Why is the first photo slow?**
 The AI model downloads and loads on first use. After that, each photo takes several seconds on a typical CPU, or faster with an NVIDIA GPU when running from source.
 
+**What file types does it open?**
+JPG, PNG, WebP, AVIF, HEIC/HEIF (iPhone photos), BMP, TIFF, animated GIFs, and MP4/MOV/AVI/WebM/MKV video. Results are saved as transparent PNG or WebP.
+
 **Does it work on video?**
 Yes, if [ffmpeg](https://ffmpeg.org/download.html) is installed (Windows: `winget install Gyan.FFmpeg`). GIFs work without it.
 

@@ -30,7 +30,7 @@ except Exception:
     _DND = False
 
 APP_NAME = "SnipBG"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"
 # Bundled files live in sys._MEIPASS when running as the packaged .exe
 HERE = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
 
@@ -665,7 +665,7 @@ class App:
             self.s.bg_color = c
         elif key == "image":
             p = filedialog.askopenfilename(title="Background photo",
-                                           filetypes=[("Images", "*.png *.jpg *.jpeg *.webp *.bmp *.avif")])
+                                           filetypes=[("Images", " ".join("*" + e for e in core.IMAGE_EXTS))])
             if not p:
                 if not self.s.bg_image:
                     return

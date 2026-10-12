@@ -3,6 +3,7 @@ Pillow>=10.0.0
 numpy>=1.24
 scipy>=1.10
 tkinterdnd2>=0.3.0
+pillow-heif>=0.16  # HEIC/HEIF (iPhone) photos
 # Optional: AI upscaling for the "Enhance" feature. If not installed,
 # Enhance falls back to a Lanczos + sharpen pass automatically.
 # realesrgan>=0.3.0

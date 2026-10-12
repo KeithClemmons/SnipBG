@@ -1,7 +1,7 @@
 @echo off
 REM ===== Build everything needed for a GitHub release =====
 REM   1. Builds dist\SnipBG\ with PyInstaller
-REM   2. Self-tests the .exe on a clean user profile (catches missing bundled files)
+REM   2. Self-tests the .exe on a clean user profile with a HEIC photo (catches missing bundled files)
 REM   3. Writes installer\SnipBG-<version>-windows-portable.zip
 REM   4. Writes installer\SnipBG-Setup-<version>.exe  (needs Inno Setup 6:
 REM        winget install JRSoftware.InnoSetup)
@@ -29,7 +29,7 @@ REM but deliberately leave out config.yaml so the bundled copy gets used.
 if exist "%USERPROFILE%\.transparent-background\ckpt_base.pth" copy /y "%USERPROFILE%\.transparent-background\ckpt_base.pth" "%TESTHOME%\.transparent-background\" >nul
 set "REALHOME=%USERPROFILE%"
 set "USERPROFILE=%TESTHOME%"
-set "SNIPBG_SELFTEST=%~dp0snipbg.png|%TESTHOME%\out"
+set "SNIPBG_SELFTEST=%~dp0tests\selftest.heic|%TESTHOME%\out"
 start "" /wait "dist\SnipBG\SnipBG.exe"
 set "RC=%errorlevel%"
 set "USERPROFILE=%REALHOME%"

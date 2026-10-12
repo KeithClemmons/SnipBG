@@ -26,8 +26,16 @@ try:
 except Exception:  # pragma: no cover
     _ndi = None
 
+# HEIC/HEIF (iPhone photos) needs the pillow-heif plugin; without it those files are skipped.
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+    HEIF_EXTS = (".heic", ".heif")
+except Exception:  # pragma: no cover
+    HEIF_EXTS = ()
 
-IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".avif")
+
+IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".avif") + HEIF_EXTS
 GIF_EXTS = (".gif",)
 VIDEO_EXTS = (".mp4", ".mov", ".avi", ".webm", ".mkv")
 
