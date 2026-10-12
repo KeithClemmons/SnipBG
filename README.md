@@ -119,7 +119,7 @@ Run `python cli.py --help` for every option.
 
 ## Credits
 
-Background removal by [InSPyReNet](https://github.com/plemeri/InSPyReNet) via [transparent-background](https://github.com/plemeri/transparent-background). Optional upscaling by [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN).
+Background removal by [InSPyReNet](https://github.com/plemeri/InSPyReNet) via [transparent-background](https://github.com/plemeri/transparent-background). Optional upscaling by [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN). Demo photo by [Wilson](https://unsplash.com/@wilsonch3n) on [Unsplash](https://unsplash.com).
 
 <div align="center">
 <br>
