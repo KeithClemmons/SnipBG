@@ -15,7 +15,7 @@
 
 <br>
 
-<img src="docs/screenshot.png" alt="SnipBG with a photo whose background has been removed" width="820">
+<img src="docs/screenshot.png" alt="SnipBG showing a deer photo with its background removed" width="820">
 
 </div>
 

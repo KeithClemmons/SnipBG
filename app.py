@@ -665,7 +665,7 @@ class App:
             self.s.bg_color = c
         elif key == "image":
             p = filedialog.askopenfilename(title="Background photo",
-                                           filetypes=[("Images", "*.png *.jpg *.jpeg *.webp *.bmp")])
+                                           filetypes=[("Images", "*.png *.jpg *.jpeg *.webp *.bmp *.avif")])
             if not p:
                 if not self.s.bg_image:
                     return

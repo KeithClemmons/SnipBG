@@ -27,7 +27,7 @@ except Exception:  # pragma: no cover
     _ndi = None
 
 
-IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff")
+IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".avif")
 GIF_EXTS = (".gif",)
 VIDEO_EXTS = (".mp4", ".mov", ".avi", ".webm", ".mkv")
 
