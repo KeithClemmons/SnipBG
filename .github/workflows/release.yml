@@ -1,8 +1,11 @@
 # Builds SnipBG for Windows, macOS (Apple Silicon) and Linux, self-tests each build,
 # and publishes them as a GitHub release.
 #
-# To release: bump APP_VERSION in app.py, commit, then push a matching tag:
-#   git tag v1.1.0 && git push origin v1.1.0
+# To release: bump APP_VERSION in app.py, commit, then push a matching tag. Give the tag a
+# message (one -m per bullet) and it becomes the "What's new" section of the release page:
+#   git tag -a v1.2.0 -m "- Added X" -m "- Fixed Y"
+#   git push origin main v1.2.0
+# A plain "git tag v1.2.0" (no message) publishes without a "What's new" section.
 # "Run workflow" on the Actions tab builds and tests without publishing.
 name: Release
 
@@ -112,7 +115,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VER="${GITHUB_REF_NAME#v}"
-          cat > notes.md <<EOF
+          # "What's new" comes from the annotated tag's message, if there is one.
+          : > notes.md
+          REF=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$GITHUB_REF_NAME")
+          if [ "$(echo "$REF" | jq -r .object.type)" = "tag" ]; then
+            TAG_SHA=$(echo "$REF" | jq -r .object.sha)
+            MSG=$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$TAG_SHA" -q .message \
+                  | sed '/-----BEGIN PGP SIGNATURE-----/,$d')
+            if [ -n "$(echo "$MSG" | tr -d '[:space:]')" ]; then
+              printf "## What's new\n\n%s\n\n" "$MSG" > notes.md
+            fi
+          fi
+          cat >> notes.md <<EOF
           Download the file for your computer:
 
           | System | File |
