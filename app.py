@@ -30,7 +30,7 @@ except Exception:
     _DND = False
 
 APP_NAME = "SnipBG"
-APP_VERSION = "1.1.1"
+APP_VERSION = "1.1.2"
 # Bundled files live in sys._MEIPASS when running as the packaged .exe
 HERE = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
 
