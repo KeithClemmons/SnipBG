@@ -4,15 +4,15 @@ REM Creates a local Python virtual environment and installs everything.
 cd /d "%~dp0"
 
 REM --- Pick a good Python interpreter ---
-REM Prefer the py launcher targeting 3.11, then 3.10. Fall back to plain python.
+REM Prefer the py launcher targeting 3.11 (what releases are built with), then 3.12. Fall back to plain python.
 set "PY="
 py -3.11 -c "import sys" >nul 2>nul && set "PY=py -3.11"
-if not defined PY ( py -3.10 -c "import sys" >nul 2>nul && set "PY=py -3.10" )
+if not defined PY ( py -3.12 -c "import sys" >nul 2>nul && set "PY=py -3.12" )
 if not defined PY ( where python >nul 2>nul && set "PY=python" )
 
 if not defined PY (
   echo.
-  echo No suitable Python found. Install Python 3.10 or 3.11 from
+  echo No suitable Python found. Install Python 3.11 from
   echo https://www.python.org/downloads/ ^(tick "Add Python to PATH"^), then retry.
   echo.
   pause
