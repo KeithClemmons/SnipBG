@@ -25,8 +25,8 @@ jobs:
       fail-fast: false
       matrix:
         # ubuntu-22.04 (glibc 2.35) so the Linux build runs on older distros too.
-        # macos-14 runners are Apple Silicon; PyTorch no longer ships Intel Mac builds.
-        os: [windows-latest, macos-14, ubuntu-22.04]
+        # macos-15 runners are Apple Silicon; PyTorch no longer ships Intel Mac builds.
+        os: [windows-latest, macos-15, ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
