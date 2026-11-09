@@ -97,7 +97,7 @@ Not supported. PyTorch, the AI engine SnipBG uses, no longer supports Intel Macs
 <summary><b>Run from source</b></summary>
 <br>
 
-Requires Python 3.11 (3.12 should also work).
+Requires Python 3.12 (3.13 should also work).
 
 **Windows:** double-click `setup.bat`, then `run.bat`.
 
