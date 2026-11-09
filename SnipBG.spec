@@ -19,7 +19,8 @@ a = Analysis(
     datas=[('snipbg.ico', '.'), ('snipbg.png', '.')]
           + collect_data_files('transparent_background')
           + copy_metadata('gdown'),
-    hiddenimports=[],
+    # torchvision 0.29+ renamed its native ops to *_stable; PyInstaller's hook still looks for _C.
+    hiddenimports=['torchvision._C_stable', 'torchvision.image_stable'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
